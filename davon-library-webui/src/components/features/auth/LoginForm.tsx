@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { useUser } from '@/hooks/useUser';
 
 interface LoginFormData {
   email: string;
@@ -11,10 +12,12 @@ interface LoginFormData {
 
 export default function LoginForm() {
   const router = useRouter();
+  const { users, setCurrentUser } = useUser();
   const [formData, setFormData] = useState<LoginFormData>({ email: '', password: '' });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [loginError, setLoginError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -35,15 +38,44 @@ export default function LoginForm() {
     e.preventDefault();
     if (!validateForm()) return;
     setIsLoading(true);
-    setTimeout(() => {
-      console.log('Form data:', formData);
+    setLoginError('');
+
+    try {
+      // Kullanıcıyı bul
+      const user = users.find(u => u.email === formData.email);
+      
+      if (!user) {
+        setLoginError('Kullanıcı bulunamadı');
+        setIsLoading(false);
+        return;
+      }
+
+      // Şifre kontrolü
+      if (user.password !== formData.password) {
+        setLoginError('Şifre yanlış');
+        setIsLoading(false);
+        return;
+      }
+
+      setCurrentUser(user);
+      
+      // Başarılı giriş
       router.push('/dashboard');
+    } catch (error) {
+      setLoginError('Giriş yapılırken bir hata oluştu');
+      console.error('Login error:', error);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
+      {loginError && (
+        <div className="error-message" style={{ marginBottom: '20px', textAlign: 'center', color: 'red' }}>
+          {loginError}
+        </div>
+      )}
       <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>E-posta Adresi</h3>
       <div className="form-group" style={{ marginBottom: '25px' }}>
         <div style={{ position: 'relative' }}>
