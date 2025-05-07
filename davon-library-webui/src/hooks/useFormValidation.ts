@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 
 interface ValidationRules {
-  [key: string]: (value: string) => string | undefined;
+  [key: string]: (value: string) => string | undefined;  // DRY PRINCIPLE
 }
 
 export const useFormValidation = (initialValues: any, validationRules: ValidationRules) => {
@@ -9,30 +9,51 @@ export const useFormValidation = (initialValues: any, validationRules: Validatio
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  // HANDLE CHANGE
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setValues((prev: typeof initialValues) => ({ ...prev, [name]: value }));
     
+    setValues((prevValues: typeof initialValues) => ({
+      ...prevValues,
+      [name]: value
+    }));
+
     if (touched[name]) {
       const error = validationRules[name]?.(value);
-      setErrors(prev => ({ ...prev, [name]: error || '' }));
+      setErrors(prevErrors => ({
+        ...prevErrors,
+        [name]: error || ''
+      }));
     }
   }, [touched, validationRules]);
 
+  // HANDLE BLUR
   const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
     const { name } = e.target;
-    setTouched(prev => ({ ...prev, [name]: true }));
-    
+
+    setTouched(prevTouched => ({
+      ...prevTouched,
+      [name]: true
+    }));
+
     const error = validationRules[name]?.(values[name]);
-    setErrors(prev => ({ ...prev, [name]: error || '' }));
+    setErrors(prevErrors => ({
+      ...prevErrors,
+      [name]: error || ''
+    }));
   }, [values, validationRules]);
 
+  // VALIDATE FORM
   const validateForm = useCallback(() => {
     const newErrors: Record<string, string> = {};
-    Object.keys(validationRules).forEach(key => {
-      const error = validationRules[key]?.(values[key]);
-      if (error) newErrors[key] = error;
+
+    Object.keys(validationRules).forEach(fieldName => {
+      const error = validationRules[fieldName]?.(values[fieldName]);
+      if (error) {
+        newErrors[fieldName] = error;
+      }
     });
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   }, [values, validationRules]);

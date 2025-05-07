@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useFormValidation } from '@/hooks/useFormValidation';
+import { useUser } from '@/hooks/useUser';
 
-// structure of the register form input data.
+// INTERFACE
 interface RegisterFormData {
-  username: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
+  username: string;  
+  email: string;      
+  password: string;    
+  confirmPassword: string; 
 }
 
-// initial values of the register form input data.
+// INITIAL VALUES
 const initialValues: RegisterFormData = {
   username: '',
   email: '',
@@ -21,12 +22,12 @@ const initialValues: RegisterFormData = {
   confirmPassword: '',
 };
 
-// validation rules of the register form input data.
+// VALIDATION RULES
 const validationRules = {
   username: (value: string) => {
     if (!value.trim()) return 'Kullanıcı adı gereklidir';
     if (value.length < 3) return 'Kullanıcı adı en az 3 karakter olmalıdır';
-    return undefined; // no validation error
+    return undefined;
   },
   email: (value: string) => {
     if (!value.trim()) return 'E-posta gereklidir';
@@ -38,46 +39,49 @@ const validationRules = {
     if (value.length < 6) return 'Şifre en az 6 karakter olmalıdır';
     return undefined;
   },
-  confirmPassword: (value: string) => {
+  /*confirmPassword: (value: string) => {
     if (!value) return 'Şifre tekrarı gereklidir';
+    if (value !== initialValues.password) return 'Şifreler eşleşmiyor';
     return undefined;
-  },
+  },*/
 };
 
-// register form component.
+// REGISTER FORM COMPONENT
 export default function RegisterForm() {
   const router = useRouter();
-  const [showPassword, setShowPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  const { addUser } = useUser();
+  
+  // PASSWORD VISIBILITY STATES
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // FORM VALIDATION HOOK
   const {
     values: formData,
     errors,
     touched,
     handleChange,
     handleBlur,
-    validateForm,
-    setValues
+    validateForm, 
   } = useFormValidation(initialValues, validationRules);
 
-  useEffect(() => {
-    // Şifre eşleşme kontrolü
-    if (formData.password && formData.confirmPassword) {
-      if (formData.password !== formData.confirmPassword) {
-        setValues((prev: RegisterFormData) => ({ ...prev, confirmPassword: '' }));
-      }
-    }
-  }, [formData.password, formData.confirmPassword, setValues]);
-
+  // FORM SUBMISSION
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // FORM VALIDATION
     if (!validateForm()) return;
 
     try {
-      // API çağrısı simülasyonu
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log('Kayıt verisi:', formData);
+      // CREATE NEW USER AND SAVE
+      addUser({
+        name: formData.username,
+        email: formData.email,
+        role: 'user', // DEFAULT USER ROLE
+        password: formData.password,
+      });
+      
+      // SUCCESSFUL REGISTRATION, REDIRECT TO LOGIN PAGE
       router.push('/auth/login');
     } catch (error) {
       console.error('Kayıt hatası:', error);
@@ -106,8 +110,7 @@ export default function RegisterForm() {
         </div>
         {errors.username && touched.username && <p className="error-message" style={{ fontSize: '12px' }}>{errors.username}</p>}
       </div>
-
-      <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>E-posta Adresi</h3>
+      <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>E-posta</h3>
       <div className="form-group" style={{ marginBottom: '25px' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
@@ -127,7 +130,6 @@ export default function RegisterForm() {
         </div>
         {errors.email && touched.email && <p className="error-message" style={{ fontSize: '12px' }}>{errors.email}</p>}
       </div>
-
       <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>Şifre</h3>
       <div className="form-group" style={{ marginBottom: '25px' }}>
         <div style={{ position: 'relative' }}>
@@ -155,8 +157,7 @@ export default function RegisterForm() {
         </div>
         {errors.password && touched.password && <p className="error-message" style={{ fontSize: '12px' }}>{errors.password}</p>}
       </div>
-
-      <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>Şifre Tekrar</h3>
+      <h3 style={{ marginBottom: '20px', fontSize: '18px', textAlign: 'center' }}>Şifre Tekrarı</h3>
       <div className="form-group" style={{ marginBottom: '25px' }}>
         <div style={{ position: 'relative' }}>
           <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
@@ -183,7 +184,6 @@ export default function RegisterForm() {
         </div>
         {errors.confirmPassword && touched.confirmPassword && <p className="error-message" style={{ fontSize: '12px' }}>{errors.confirmPassword}</p>}
       </div>
-
       <button
         type="submit"
         className="btn btn-primary"
@@ -191,7 +191,6 @@ export default function RegisterForm() {
       >
         Kayıt Ol
       </button>
-
       <p className="text-center" style={{ fontSize: '14px', color: '#666', marginTop: '5px' , marginBottom: "-15px"}}>
         Kayıt olarak kullanım koşullarını ve gizlilik politikasını kabul etmiş olursunuz.
       </p>
