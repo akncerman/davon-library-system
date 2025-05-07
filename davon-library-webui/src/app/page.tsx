@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function Home() {
   return (
-    <main>
+    <main style={{ paddingTop: '96px' }}>
       <header>
         <nav className="navbar">
           <div className="logo">

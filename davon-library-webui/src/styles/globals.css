@@ -1,4 +1,8 @@
 /* Reset and base styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
     margin: 0;
     padding: 0;
@@ -536,4 +540,232 @@ footer {
 .secondary-button:hover {
   background-color: var(--accent-color);
   color: var(--secondary-color);
+}
+
+/* User List Page Specific Styles */
+.user-list-wrapper {
+  max-width: 1200px;
+  margin: 100px auto 40px auto;
+  padding: 0 20px;
+}
+
+.user-table-layout {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Header Row Styles */
+.user-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+  color: #34495e;
+}
+
+.header-item {
+  display: flex;
+  align-items: center;
+}
+
+.user-name-header {
+  min-width: 150px;
+  flex-grow: 1;
+  padding-right: 20px;
+}
+
+.user-email-header {
+  min-width: 250px;
+  flex-grow: 1;
+  padding-right: 20px;
+}
+
+.user-role-header {
+  min-width: 90px;
+  flex-grow: 0.5;
+  padding-right: 20px;
+}
+
+.user-actions-header {
+  min-width: 100px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.user-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background-color: rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: background-color 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.user-row:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.user-details-row {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.user-name-in-row {
+  font-weight: 600;
+  color: #2c3e50;
+  min-width: 150px;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.user-email-in-row {
+  color: #34495e;
+  min-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+  flex-grow: 1;
+}
+
+.user-role-in-row {
+  color: #007AFF;
+  font-weight: 500;
+  min-width: 90px;
+  flex-shrink: 0;
+  flex-grow: 0.5;
+}
+
+.user-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+/* icon-btn styles are assumed to be existing and fine, but ensure they work with new layout */
+.icon-btn {
+  background: #f3f4f6; /* This will be overridden by specific styles below */
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px; /* Reverted to a slightly larger padding for better click area */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center the icon within the button */
+  font-size: 1rem; /* Icon size is controlled by FaEdit/FaTrash size prop */
+  line-height: 1; /* Ensure icon is centered vertically */
+}
+
+.icon-btn.edit {
+  background-color: #007AFF; /* Blue background */
+  color: white; /* White icon */
+}
+
+.icon-btn.edit:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+
+.icon-btn.delete {
+  background-color: #dc2626; /* Red background */
+  color: white; /* White icon */
+}
+
+.icon-btn.delete:hover {
+  background-color: #b02a2a; /* Darker red on hover */
+}
+
+/* Responsive adjustments for user list rows */
+@media (max-width: 768px) {
+  .user-list-header {
+    display: none;
+  }
+  .user-details-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    margin-bottom: 10px;
+  }
+  .user-row {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+  .user-name-in-row,
+  .user-email-in-row,
+  .user-role-in-row {
+    min-width: unset;
+    white-space: normal;
+    overflow: visible;
+  }
+  .user-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 700px) {
+  /* .panel-container related media query removed as .panel-container is removed */
+  /* .user-card related media query removed */
+  /* .panel-title related media query removed */
+  /* .user-grid related media query removed */
+
+  /* You might want to adjust .user-list-wrapper padding or margin for smaller screens if needed */
+  .user-list-wrapper {
+    margin-top: 80px;
+    padding: 0 10px;
+  }
+}
+
+.flex-center-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* Adjust for navbar height */
+}
+
+.edit-user-form-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.edit-user-form-centered label {
+  text-align: center;
+  width: 100%;
+}
+
+.edit-user-form-centered .form-input {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 320px;
+}
+
+.edit-user-form-centered button {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 600px) {
+  .form-container {
+    padding: 16px 6px;
+    max-width: 98vw;
+  }
+  .edit-user-form-centered .form-input {
+    max-width: 100%;
+  }
 } 
