@@ -36,14 +36,6 @@ export default function UserList() {
       deleteUser(userToDelete);
       setShowDeleteConfirm(false);
       setUserToDelete(null);
-      toast.success('Kullanıcı başarıyla silindi', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-      });
     }
   };
 
