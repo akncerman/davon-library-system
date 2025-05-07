@@ -3,151 +3,157 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/hooks/useUser';
-import { FaTrash, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit, FaBookOpen } from 'react-icons/fa';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Link from 'next/link';
 
-// Kullanıcı listesi bileşeni
+// USER LIST COMPONENT
 export default function UserList() {
   const router = useRouter();
   const { users, currentUser, deleteUser } = useUser();
   
-  // Silme işlemi için state'ler
+  // DELETE USER
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Sayfa yüklendiğinde admin kontrolü
+  // WHEN PAGE IS LOADED, CHECK IF USER IS ADMIN
   useEffect(() => {
     if (!currentUser || currentUser.role !== 'admin') {
       router.push('/dashboard');
     }
   }, [currentUser, router]);
 
-  // Kullanıcı silme işlemi
+  // DELETE USER
   const handleDelete = (userId: string) => {
     setUserToDelete(userId);
     setShowDeleteConfirm(true);
   };
 
-  // Silme işlemini onaylama
+  // CONFIRM DELETE
   const confirmDelete = () => {
     if (userToDelete) {
       deleteUser(userToDelete);
       setShowDeleteConfirm(false);
       setUserToDelete(null);
+      toast.success('Kullanıcı başarıyla silindi', {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
     }
   };
 
-  // Silme işlemini iptal etme
+  // CANCEL DELETE
   const cancelDelete = () => {
     setShowDeleteConfirm(false);
     setUserToDelete(null);
   };
 
-  // Kullanıcı düzenleme sayfasına yönlendirme
+  // REDIRECT TO EDIT PAGE
   const handleEdit = (userId: string) => {
     router.push(`/dashboard/users/edit/${userId}`);
   };
 
-  // Admin değilse dashboard'a yönlendir
-  if (!currentUser || currentUser.role !== 'admin') {
-    return null;
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Başlık */}
-      <h1 className="text-2xl font-bold mb-6">Kullanıcı Yönetimi</h1>
+    <main className="bg-gradient min-h-screen" style={{ paddingTop: '96px' }}>
+      <ToastContainer
+        position="top-center"
+        style={{ 
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999
+        }}
+      />
+      <header>
+        <nav className="navbar">
+          <div className="logo">
+            <FaBookOpen size={28} color="#007AFF" />
+            <h1>Davon Kütüphane</h1>
+          </div>
+          <div className="auth-buttons">
+            <Link href="/dashboard" className="login-button">
+              Panele Dön
+            </Link>
+          </div>
+        </nav>
+      </header>
 
-      {/* Kullanıcı Tablosu */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          {/* Tablo Başlığı */}
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Kullanıcı Adı
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                E-posta
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rol
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                İşlemler
-              </th>
-            </tr>
-          </thead>
+      <div className="user-list-wrapper">
+        <div className="user-table-layout">
+          {/* Column Headers */} 
+          {users.length > 0 && (
+            <div className="user-list-header">
+              <div className="header-item user-name-header">Ad Soyad</div>
+              <div className="header-item user-email-header">E-posta</div>
+              <div className="header-item user-role-header">Rol</div>
+              <div className="header-item user-actions-header">İşlemler</div>
+            </div>
+          )}
 
-          {/* Tablo İçeriği */}
-          <tbody className="bg-white divide-y divide-gray-200">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">{user.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    user.role === 'admin' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800'
-                  }`}>
-                    {user.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  {/* Düzenleme Butonu */}
+          {users.length === 0 ? (
+            <p className="text-center text-gray-500 py-12">Hiç kullanıcı bulunamadı.</p>
+          ) : (
+            users.map((user) => (
+              <div key={user.id} className="user-row">
+                <div className="user-details-row">
+                  <div className="user-name-in-row">{user.name}</div>
+                  <div className="user-email-in-row">{user.email}</div>
+                  <div className="user-role-in-row">{user.role === 'admin' ? 'Yönetici' : 'Kullanıcı'}</div>
+                </div>
+                <div className="user-actions">
                   <button
                     onClick={() => handleEdit(user.id)}
-                    className="text-indigo-600 hover:text-indigo-900 mr-4"
+                    className="icon-btn edit"
+                    title="Düzenle"
                   >
-                    <FaEdit />
+                    <FaEdit size={20} />
                   </button>
-                  {/* Silme Butonu */}
                   <button
                     onClick={() => handleDelete(user.id)}
-                    className="text-red-600 hover:text-red-900"
+                    className="icon-btn delete"
+                    title="Sil"
                   >
-                    <FaTrash />
+                    <FaTrash size={20} />
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Silme Onay Modalı */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div className="mt-3 text-center">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">Kullanıcıyı Sil</h3>
-              <div className="mt-2 px-7 py-3">
-                <p className="text-sm text-gray-500">
-                  Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
-                </p>
-              </div>
-              <div className="items-center px-4 py-3">
-                {/* İptal Butonu */}
-                <button
-                  onClick={cancelDelete}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-24 mr-2 hover:bg-gray-400"
-                >
-                  İptal
-                </button>
-                {/* Onay Butonu */}
-                <button
-                  onClick={confirmDelete}
-                  className="px-4 py-2 bg-red-500 text-white text-base font-medium rounded-md w-24 hover:bg-red-600"
-                >
-                  Sil
-                </button>
-              </div>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="form-container" style={{ maxWidth: '400px', marginLeft: '550px', marginBottom: '1000px' }}>
+            <h3 className="text-lg font-semibold text-gray-800 mb-3">Kullanıcıyı Sil</h3>
+            <p className="text-sm text-gray-600 mb-4" style={{ marginBottom: '15px' }}>
+              Bu kullanıcıyı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={cancelDelete}
+                className="btn btn-secondary"
+                style={{ marginLeft: '65px', marginRight: '10px' }}
+              >
+                İptal
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="btn btn-primary"
+                style={{ backgroundColor: '#dc2626', marginLeft: '10px' }}
+              >
+                Sil
+              </button>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 } 

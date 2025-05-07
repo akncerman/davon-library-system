@@ -1,11 +1,8 @@
 import { useContext } from 'react';
 import { UserContext } from '@/lib/context/UserContext';
 
-/**
- * Kullanıcı yönetimi için özel hook
- * @returns {UserContextType} Kullanıcı context'ini döndürür
- * @throws {Error} Eğer hook UserProvider dışında kullanılırsa hata fırlatır
- */
+// CUSTOM HOOK FOR USER MANAGEMENT
+
 export function useUser() {
   const context = useContext(UserContext);
   if (context === undefined) {

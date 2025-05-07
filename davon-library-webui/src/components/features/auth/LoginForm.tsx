@@ -5,26 +5,35 @@ import { useRouter } from 'next/navigation';
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useUser } from '@/hooks/useUser';
 
+// LOGINFORM COMPONENT HANDLES USER LOGIN LOGIC AND UI
+// IT USES CONTEXT TO ACCESS USERS AND SET THE CURRENT USER
+
+// INTERFACE
 interface LoginFormData {
   email: string;
   password: string;
 }
 
+// COMPONENT
 export default function LoginForm() {
   const router = useRouter();
-  const { users, setCurrentUser } = useUser();
+  const { users, setCurrentUser } = useUser(); // CONNECT TO CONTEXT
+
+  // STATES
   const [formData, setFormData] = useState<LoginFormData>({ email: '', password: '' });
   const [errors, setErrors] = useState<Partial<LoginFormData>>({});
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
 
+  // HANDLE CHANGE
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setErrors(prev => ({ ...prev, [name]: '' }));
+    setFormData({ ...formData, [name]: value });
+    setErrors({ ...errors, [name]: '' });
   };
 
+  // VALIDATE FORM
   const validateForm = () => {
     const newErrors: Partial<LoginFormData> = {};
     if (!formData.email.trim()) newErrors.email = 'E-posta gereklidir';
@@ -34,32 +43,33 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  // HANDLE SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+    e.preventDefault(); // WE PREVENT DEFAULT FORM SUBMISSION (PREVENT REFRESHING THE PAGE)
+    if (!validateForm()) return; 
     setIsLoading(true);
     setLoginError('');
 
     try {
-      // Kullanıcıyı bul
+      // FIND USER
       const user = users.find(u => u.email === formData.email);
-      
       if (!user) {
         setLoginError('Kullanıcı bulunamadı');
         setIsLoading(false);
         return;
       }
 
-      // Şifre kontrolü
+      // PASSWORD CHECK
       if (user.password !== formData.password) {
         setLoginError('Şifre yanlış');
         setIsLoading(false);
         return;
       }
 
+      // SET CURRENT USER
       setCurrentUser(user);
       
-      // Başarılı giriş
+      // SUCCESSFUL LOGIN
       router.push('/dashboard');
     } catch (error) {
       setLoginError('Giriş yapılırken bir hata oluştu');

@@ -4,6 +4,9 @@ import React, { createContext, useState, useEffect } from 'react';
 
 // INTERFACES
 
+// # KEY POINT: We define the interface for the context value, not the provider.
+// Because the provider only distributes the data — it's the context that holds and types it.
+
 // USER INTERFACE
 interface User {
   id: string;
@@ -22,6 +25,7 @@ interface UserContextType {
   deleteUser: (id: string) => void;
   setCurrentUser: (user: User | null) => void;
   logout: () => void;
+  verifyPassword: (userId: string, password: string) => boolean;
 }
 
 // IMPORTANT: WE MUST USE CONTEXT TO SHARE THE USER DATA BETWEEN THE COMPONENTS
@@ -104,6 +108,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('currentUser');
   };
 
+  // VERIFY PASSWORD
+  const verifyPassword = (userId: string, password: string): boolean => {
+    const user = users.find(u => u.id === userId);
+    if (!user) return false;
+    return user.password === password; // Gerçek uygulamada hash'lenmiş şifreler karşılaştırılmalı
+  };
+
   return (
     <UserContext.Provider value={{
       users,
@@ -113,6 +124,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       deleteUser,
       setCurrentUser,
       logout,
+      verifyPassword,
     }}>
       {children}
     </UserContext.Provider>
